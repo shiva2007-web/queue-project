@@ -38,7 +38,7 @@
 </head>
 <body>
 
-<h1>🚀 Invisible Queue System</h1>
+<h1> Invisible Queue System</h1>
 
 <input id="name" placeholder="Enter name">
 <button onclick="join()">Join Queue</button>
@@ -51,6 +51,8 @@
 <script>
 const API = "http://localhost:3000";
 
+let userId = null;
+
 function join() {
     let name = document.getElementById("name").value;
 
@@ -60,7 +62,10 @@ function join() {
         body: JSON.stringify({ name })
     })
     .then(res => res.json())
-    .then(data => alert("Your Position: " + data.position));
+    .then(data => {
+        alert("Your Position: " + data.position);
+        userId = data.id;
+    });
 }
 
 function load() {
@@ -82,6 +87,15 @@ function next() {
 }
 
 setInterval(load, 2000);
+setInterval(() => {
+    if (userId) {
+        fetch(API + "/active", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ id: userId })
+        });
+    }
+}, 3000);
 </script>
 
 </body>
