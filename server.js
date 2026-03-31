@@ -17,7 +17,6 @@ function distance(lat1, lon1, lat2, lon2) {
 // JOIN
 app.post("/join", (req, res) => {
 
-    // prevent same device
     const exists = queue.find(u => u.deviceId === req.body.deviceId);
     if (exists) {
         return res.json({ message: "Already in queue" });
@@ -51,7 +50,7 @@ app.post("/active", (req, res) => {
     res.json({ message: "updated" });
 });
 
-// QUEUE (with filters)
+// QUEUE
 app.get("/queue", (req, res) => {
     const now = Date.now();
 
@@ -67,7 +66,7 @@ app.get("/queue", (req, res) => {
     res.json(queue);
 });
 
-// NEXT (admin only)
+// NEXT (ADMIN)
 app.post("/next", (req, res) => {
     const password = req.body.password;
 

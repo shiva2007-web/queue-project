@@ -8,7 +8,7 @@
         body {
             margin: 0;
             font-family: 'Segoe UI', Arial;
-            background: #f4f7fb;
+            background: linear-gradient(to right, #eef2ff, #f8fafc);
         }
 
         /* NAVBAR */
@@ -22,14 +22,14 @@
         }
 
         .nav-left {
+            width: 83%;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .menu {
             font-size: 22px;
-            cursor: pointer;
         }
 
         .title {
@@ -38,13 +38,25 @@
         }
 
         .admin-btn {
+            width: 17%;
             background: #4f46e5;
             color: white;
-            padding: 6px 14px;
-            border: none;
+            padding: 8px;
             border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
+            border: none;
+            font-size: 12px;
+        }
+
+        /* HERO */
+        .hero {
+            height: 180px;
+            background: url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d') center/cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
         }
 
         /* CARD */
@@ -58,16 +70,12 @@
             text-align: center;
         }
 
-        h2 {
-            margin-bottom: 10px;
-        }
-
         input {
             width: 100%;
             padding: 12px;
-            margin-top: 10px;
             border-radius: 8px;
             border: 1px solid #ccc;
+            margin-top: 10px;
         }
 
         button {
@@ -77,7 +85,6 @@
             border-radius: 8px;
             border: none;
             font-size: 15px;
-            cursor: pointer;
         }
 
         .join-btn {
@@ -93,7 +100,6 @@
         /* QUEUE */
         ul {
             padding: 0;
-            margin-top: 15px;
         }
 
         li {
@@ -102,6 +108,17 @@
             margin: 8px 0;
             background: #f1f5f9;
             border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        li:hover {
+            transform: scale(1.02);
+        }
+
+        .me {
+            background: #22c55e !important;
+            color: white;
+            font-weight: bold;
         }
 
         /* FOOTER */
@@ -111,13 +128,6 @@
             background: #0f172a;
             color: white;
             text-align: center;
-        }
-
-        .footer p {
-            max-width: 600px;
-            margin: auto;
-            font-size: 14px;
-            opacity: 0.8;
         }
     </style>
 </head>
@@ -134,15 +144,20 @@
     <button class="admin-btn" onclick="showAdminLogin()">ADMIN</button>
 </div>
 
+<!-- HERO -->
+<div class="hero">
+    Skip the Queue. Save Time ⏳
+</div>
+
 <!-- MAIN -->
 <div class="card">
 
-    <h2>Join Queue</h2>
+    <h2>🧾 Join Queue</h2>
 
     <input id="name" placeholder="Enter your name">
     <button class="join-btn" onclick="join()">Join Queue</button>
 
-    <h3>Live Queue</h3>
+    <h3>📊 Live Queue</h3>
     <ul id="list"></ul>
 
     <button class="next-btn" onclick="next()">Next Person</button>
@@ -153,11 +168,12 @@
 <div class="footer">
     <h3>About</h3>
     <p>
-        Virtual Queue is a smart system that removes physical waiting lines using
-        real-time updates, location tracking, and activity validation.
-        Designed for canteens, hospitals, and public services.
+        Virtual Queue eliminates physical waiting using real-time updates,
+        location validation, and smart tracking.
     </p>
-    <p style="margin-top:10px; font-size:12px;">© 2026 Virtual Queue</p>
+    <p style="margin-top:10px; font-size:12px;">
+        © 2026 Virtual Queue | Developed by <b>Gnanashiva K P</b>
+    </p>
 </div>
 
 <script>
@@ -180,7 +196,7 @@ function showAdminLogin() {
         isAdmin = true;
         alert("Admin Logged In");
     } else {
-        alert("Wrong Password");
+        alert("Wrong password");
     }
 }
 
@@ -220,7 +236,7 @@ function join() {
     });
 }
 
-// LOAD QUEUE
+// LOAD
 function load() {
     fetch(API + "/queue")
     .then(res => res.json())
@@ -229,7 +245,8 @@ function load() {
         list.innerHTML = "";
 
         data.forEach((u, i) => {
-            list.innerHTML += `<li>👤 ${u.name} — Position ${i+1}</li>`;
+            list.innerHTML += `<li class="${u.id === userId ? 'me' : ''}">
+            👤 ${u.name} — Position ${i+1}</li>`;
 
             if (u.id === userId && i === 0) {
                 alert("🎉 It's your turn!");
@@ -252,10 +269,10 @@ function next() {
     });
 }
 
-// AUTO UPDATE
+// AUTO
 setInterval(load, 2000);
 
-// ACTIVE SIGNAL
+// ACTIVE
 setInterval(() => {
     if (userId) {
         fetch(API + "/active", {
