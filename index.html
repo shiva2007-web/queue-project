@@ -1,64 +1,123 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Smart Queue</title>
+    <title>Virtual Queue</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
         body {
-            font-family: Arial;
             margin: 0;
-            background: #0f172a;
-            color: white;
+            font-family: 'Segoe UI', Arial;
+            background: #f4f7fb;
         }
 
+        /* NAVBAR */
         .navbar {
             display: flex;
             justify-content: space-between;
-            padding: 12px 20px;
-            background: #1e293b;
+            align-items: center;
+            padding: 14px 20px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
 
-        .app-name {
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu {
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .title {
             font-size: 20px;
-            font-weight: bold;
+            font-weight: 600;
         }
 
-        .container {
+        .admin-btn {
+            background: #4f46e5;
+            color: white;
+            padding: 6px 14px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* CARD */
+        .card {
+            max-width: 420px;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
             text-align: center;
-            padding: 20px;
+        }
+
+        h2 {
+            margin-bottom: 10px;
         }
 
         input {
+            width: 100%;
             padding: 12px;
-            width: 80%;
+            margin-top: 10px;
             border-radius: 8px;
-            border: none;
+            border: 1px solid #ccc;
         }
 
         button {
+            width: 100%;
             padding: 12px;
-            width: 85%;
-            margin-top: 10px;
+            margin-top: 12px;
             border-radius: 8px;
             border: none;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .join-btn {
             background: #22c55e;
             color: white;
         }
 
-        .admin-btn {
-            background: #3b82f6;
-            padding: 6px 12px;
-            font-size: 12px;
+        .next-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* QUEUE */
+        ul {
+            padding: 0;
+            margin-top: 15px;
         }
 
         li {
-            background: #1e293b;
-            margin: 10px auto;
-            padding: 10px;
-            width: 85%;
-            border-radius: 10px;
             list-style: none;
+            padding: 12px;
+            margin: 8px 0;
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+
+        /* FOOTER */
+        .footer {
+            margin-top: 40px;
+            padding: 25px;
+            background: #0f172a;
+            color: white;
+            text-align: center;
+        }
+
+        .footer p {
+            max-width: 600px;
+            margin: auto;
+            font-size: 14px;
+            opacity: 0.8;
         }
     </style>
 </head>
@@ -67,20 +126,38 @@
 
 <!-- NAVBAR -->
 <div class="navbar">
-    <div class="app-name">SmartQueue</div>
+    <div class="nav-left">
+        <div class="menu">☰</div>
+        <div class="title">Virtual Queue</div>
+    </div>
+
     <button class="admin-btn" onclick="showAdminLogin()">ADMIN</button>
 </div>
 
-<div class="container">
+<!-- MAIN -->
+<div class="card">
 
-<input id="name" placeholder="Enter your name">
-<button onclick="join()">Join Queue</button>
+    <h2>Join Queue</h2>
 
-<h2>Live Queue</h2>
-<ul id="list"></ul>
+    <input id="name" placeholder="Enter your name">
+    <button class="join-btn" onclick="join()">Join Queue</button>
 
-<button onclick="next()">Next Person</button>
+    <h3>Live Queue</h3>
+    <ul id="list"></ul>
 
+    <button class="next-btn" onclick="next()">Next Person</button>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    <h3>About</h3>
+    <p>
+        Virtual Queue is a smart system that removes physical waiting lines using
+        real-time updates, location tracking, and activity validation.
+        Designed for canteens, hospitals, and public services.
+    </p>
+    <p style="margin-top:10px; font-size:12px;">© 2026 Virtual Queue</p>
 </div>
 
 <script>
@@ -89,7 +166,7 @@ const API = "http://localhost:3000";
 let userId = null;
 let isAdmin = false;
 
-// device id
+// DEVICE ID
 let deviceId = localStorage.getItem("deviceId");
 if (!deviceId) {
     deviceId = Date.now().toString();
@@ -99,18 +176,22 @@ if (!deviceId) {
 // ADMIN LOGIN
 function showAdminLogin() {
     let pass = prompt("Enter Admin Password");
-
     if (pass === "admin123") {
         isAdmin = true;
-        alert("Admin logged in");
+        alert("Admin Logged In");
     } else {
-        alert("Wrong password");
+        alert("Wrong Password");
     }
 }
 
 // JOIN
 function join() {
     let name = document.getElementById("name").value;
+
+    if (!name) {
+        alert("Enter name");
+        return;
+    }
 
     navigator.geolocation.getCurrentPosition((pos) => {
         fetch(API + "/join", {
@@ -120,11 +201,12 @@ function join() {
                 name,
                 lat: pos.coords.latitude,
                 lon: pos.coords.longitude,
-                deviceId: deviceId
+                deviceId
             })
         })
         .then(res => res.json())
         .then(data => {
+
             if (data.message) {
                 alert(data.message);
                 return;
@@ -133,7 +215,6 @@ function join() {
             userId = data.id;
             alert("Joined! Position: " + data.position);
 
-            // clear input
             document.getElementById("name").value = "";
         });
     });
@@ -148,7 +229,7 @@ function load() {
         list.innerHTML = "";
 
         data.forEach((u, i) => {
-            list.innerHTML += `<li>👤 ${u.name} — #${i+1}</li>`;
+            list.innerHTML += `<li>👤 ${u.name} — Position ${i+1}</li>`;
 
             if (u.id === userId && i === 0) {
                 alert("🎉 It's your turn!");
@@ -160,7 +241,7 @@ function load() {
 // NEXT
 function next() {
     if (!isAdmin) {
-        alert("Only admin can do this");
+        alert("Admin only");
         return;
     }
 
@@ -171,7 +252,7 @@ function next() {
     });
 }
 
-// AUTO REFRESH
+// AUTO UPDATE
 setInterval(load, 2000);
 
 // ACTIVE SIGNAL
@@ -184,7 +265,6 @@ setInterval(() => {
         });
     }
 }, 3000);
-
 </script>
 
 </body>
