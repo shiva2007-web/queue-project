@@ -1,24 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Invisible Queue</title>
+    <title>Smart Queue</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
         body {
             font-family: Arial;
+            margin: 0;
             background: #0f172a;
             color: white;
-            text-align: center;
-            margin: 0;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background: #1e293b;
+        }
+
+        .app-name {
+            font-size: 20px;
+            font-weight: bold;
         }
 
         .container {
+            text-align: center;
             padding: 20px;
-        }
-
-        h1 {
-            margin-top: 10px;
         }
 
         input {
@@ -26,51 +34,44 @@
             width: 80%;
             border-radius: 8px;
             border: none;
-            margin: 10px 0;
         }
 
         button {
             padding: 12px;
             width: 85%;
-            margin: 5px;
+            margin-top: 10px;
             border-radius: 8px;
             border: none;
             background: #22c55e;
             color: white;
-            font-size: 16px;
         }
 
-        ul {
-            list-style: none;
-            padding: 0;
+        .admin-btn {
+            background: #3b82f6;
+            padding: 6px 12px;
+            font-size: 12px;
         }
 
         li {
             background: #1e293b;
             margin: 10px auto;
-            padding: 12px;
+            padding: 10px;
             width: 85%;
             border-radius: 10px;
+            list-style: none;
         }
     </style>
 </head>
 
 <body>
-    <button onclick="showAdminLogin()" style="
-position: absolute;
-top: 10px;
-right: 10px;
-padding: 6px 10px;
-font-size: 12px;
-background: #444;
-color: white;
-border: none;
-border-radius: 5px;">
-Admin
-</button>
-<div class="container">
 
-<h1>🚀 Smart Queue</h1>
+<!-- NAVBAR -->
+<div class="navbar">
+    <div class="app-name">SmartQueue</div>
+    <button class="admin-btn" onclick="showAdminLogin()">ADMIN</button>
+</div>
+
+<div class="container">
 
 <input id="name" placeholder="Enter your name">
 <button onclick="join()">Join Queue</button>
@@ -84,20 +85,29 @@ Admin
 
 <script>
 const API = "http://localhost:3000";
-let userId = null;
 
+let userId = null;
 let isAdmin = false;
 
+// device id
+let deviceId = localStorage.getItem("deviceId");
+if (!deviceId) {
+    deviceId = Date.now().toString();
+    localStorage.setItem("deviceId", deviceId);
+}
+
+// ADMIN LOGIN
 function showAdminLogin() {
     let pass = prompt("Enter Admin Password");
 
     if (pass === "admin123") {
         isAdmin = true;
-        alert("✅ Admin Logged In");
+        alert("Admin logged in");
     } else {
-        alert("❌ Wrong Password");
+        alert("Wrong password");
     }
 }
+
 // JOIN
 function join() {
     let name = document.getElementById("name").value;
@@ -109,13 +119,22 @@ function join() {
             body: JSON.stringify({
                 name,
                 lat: pos.coords.latitude,
-                lon: pos.coords.longitude
+                lon: pos.coords.longitude,
+                deviceId: deviceId
             })
         })
         .then(res => res.json())
         .then(data => {
+            if (data.message) {
+                alert(data.message);
+                return;
+            }
+
             userId = data.id;
             alert("Joined! Position: " + data.position);
+
+            // clear input
+            document.getElementById("name").value = "";
         });
     });
 }
@@ -131,7 +150,6 @@ function load() {
         data.forEach((u, i) => {
             list.innerHTML += `<li>👤 ${u.name} — #${i+1}</li>`;
 
-            // Notification
             if (u.id === userId && i === 0) {
                 alert("🎉 It's your turn!");
             }
@@ -139,6 +157,7 @@ function load() {
     });
 }
 
+// NEXT
 function next() {
     if (!isAdmin) {
         alert("Only admin can do this");
@@ -151,6 +170,7 @@ function next() {
         body: JSON.stringify({ password: "admin123" })
     });
 }
+
 // AUTO REFRESH
 setInterval(load, 2000);
 
