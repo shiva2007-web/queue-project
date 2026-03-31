@@ -53,6 +53,12 @@ app.get("/queue", (req, res) => {
 
 // Next person
 app.post("/next", (req, res) => {
+    const password = req.body.password;
+
+    if (password !== "admin123") {
+        return res.json({ message: "Not allowed" });
+    }
+
     queue.shift();
     res.json(queue);
 });
