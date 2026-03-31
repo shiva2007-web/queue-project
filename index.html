@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invisible Queue</title>
+</head>
+<body>
+
+<h2>Join Queue</h2>
+<input id="name" placeholder="Enter name">
+<button onclick="join()">Join</button>
+
+<h2>Queue</h2>
+<ul id="list"></ul>
+
+<button onclick="next()">Next</button>
+
+<script>
+const API = "http://localhost:3000";
+
+function join() {
+    let name = document.getElementById("name").value;
+
+    fetch(API + "/join", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ name })
+    })
+    .then(res => res.json())
+    .then(data => alert("Position: " + data.position));
+}
+
+function load() {
+    fetch(API + "/queue")
+    .then(res => res.json())
+    .then(data => {
+        let list = document.getElementById("list");
+        list.innerHTML = "";
+        data.forEach((u, i) => {
+            list.innerHTML += `<li>${i+1}. ${u.name}</li>`;
+        });
+    });
+}
+
+function next() {
+    fetch(API + "/next", { method: "POST" });
+}
+
+setInterval(load, 2000);
+</script>
+
+</body>
+</html>
